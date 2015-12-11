@@ -52,19 +52,25 @@ INTERFACE MEMBERS
 BUS MONITORING (busctl)
 ------------------------
 
-#### Naming convention
+##### Naming convention
 
 - Low-level : Unique names (similar to IP)
 - High-level : well-known service names (similar to DNS host names)
 
-#### busctl tree <serviceName>
+##### busctl tree <serviceName>
 
 - objects available in a service
 
-#### busctl introspect <serviceName> <objectPath>
+##### busctl introspect <serviceName> <objectPath>
 
-#### bustcl call <service> <object> method
+- interfaces exposed by an object path
 
+##### bustcl call <service> <object> method <type> <data>
 
-#### To execute the sample files, execute the following:   
+- invoke a method on the service
+
+#### NOTE : 
+- busctl can generate .cap files by monitoring the bus!
+
+##### To execute the sample files, execute the following:   
 $ python main.py
