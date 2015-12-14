@@ -66,11 +66,21 @@ BUS MONITORING (busctl)
 - interfaces exposed by an object path
 
 ##### bustcl call <service> <object> method <type> <data>
-
 - invoke a method on the service
 
 #### NOTE : 
-- busctl can generate .cap files by monitoring the bus!
+1. busctl can generate .cap files by monitoring the bus!
+2. busctl can connect to remote (via ssh) / container buses!
+3. busctl understands kdbus and (classic) dbus1!
+
+# sd-bus
+
+- supports kdbus and dbus1
+- checks credentials of the clients
+- generates introspection as necessary
+- etc.
+ 
+
 
 ##### To execute the sample files, execute the following:   
 $ python main.py
