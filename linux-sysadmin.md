@@ -77,12 +77,39 @@ $ sudo killall <processName> # kill all process started by process
 - kernel adds info about all running process here, ordered by **PID**
 - folders are empty, since info is updated at runtime
 ```
-$ cmd # what command is being run  
-$ cwd # where is it operating from  
-$ environ # environment variables used  
-$ maps # memory mapping info  
-$ statm # memory info  
+- cmd # what command is being run  
+- cwd # where is it operating from  
+- environ # environment variables used  
+- maps # memory mapping info  
+- statm # memory info  
 ```
 
 ### 3.2 strace<a name="strace"></a>
 Attach/Dettach to a process
+
+
+## 4. Filesystem
+-----------------
+
+
+```$ man hier``` gives info of the filesystem
+
+* ```/boot``` : bootloader and kernel image
+* ```/dev``` : devices mount point
+* ```/etc``` : config files for processes
+* ```/sbin```  : secure system binaries
+* ```/bin``` : soft links to actual binaries
+* ```/lib``` : shared libraries
+* ```/mnt``` : external storage mount point
+* ```/opt``` : softwares other than the base system
+* ```/proc``` : process management virtual FS, manages process states
+* ```/var``` : various things, such as logs
+
+File types (7 types):
+* directory : contain files and sub-directories
+* files
+* symbolic links
+* block device : storage devices are seen as block devices (kernel buffers these devices)
+* character device : some devices (mouse, etc.) seen as character devices (direct access to the device)
+* unix-sockets : communciation channel between processes
+* named-pipes : FIFO communciation channel
