@@ -112,3 +112,13 @@ Nvidia GTC 2016
 #### Image classification
 	- flexible image captionining
 	- unsupervised image unknown pixels generation
+
+
+### OPTIMIZATIOn
+
+#### Training
+	- persistent CUDA, closed-source
+	- half floating point precision to train RNNs
+
+#### Deployment
+	- Deep compression
