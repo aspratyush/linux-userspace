@@ -115,8 +115,8 @@ Following 3 scenarios occur:
 * API : `cv2.getProjectiveTransform`
 * E.g.:
 	- Say, `pts1` and `pts2` are point correspondances (>=4) of the type : `np.float32[]`
-	- `M = cv2.getProjectiveTransform(pts1, pts2)`
-	- `imgNew = cv2.warpAffine(img, M, (cols,rows))`
+	- `M = cv2.getPerspectiveTransform(pts1, pts2)`
+	- `imgNew = cv2.warpPerspective(img, M, (cols,rows))`
 
 #### Affine warp
 
@@ -132,10 +132,10 @@ Following 3 scenarios occur:
 
 #### Projective warp
 
-* API : `cv2.ProjectiveWarp`
+* API : `cv2.warpPerspective`
 * E.g. : 
 	- Uses a `3 x 3` matrix to perform projective warp
-		- `imgNew = cv2.projectiveWarp(img, M, (cols,rows))` 
+		- `imgNew = cv2.warpPerspective(img, M, (cols,rows))` 
 
 
 ---------
