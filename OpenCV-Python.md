@@ -109,10 +109,10 @@ Following 3 scenarios occur:
 	- `imgNew = cv2.warpAffine(img, M, (cols,rows))`
 
 
-#### Projective Transform Matrix
+#### Perspective Transform Matrix
 
 * get Projective Transform matrix from a set of point correspondances
-* API : `cv2.getProjectiveTransform`
+* API : `cv2.getPerspectiveTransform`
 * E.g.:
 	- Say, `pts1` and `pts2` are point correspondances (>=4) of the type : `np.float32[]`
 	- `M = cv2.getPerspectiveTransform(pts1, pts2)`
@@ -130,13 +130,58 @@ Following 3 scenarios occur:
 		- `t = [ tx; ty ]`
 
 
-#### Projective warp
+#### Perspective warp
 
 * API : `cv2.warpPerspective`
 * E.g. : 
 	- Uses a `3 x 3` matrix to perform projective warp
 		- `imgNew = cv2.warpPerspective(img, M, (cols,rows))` 
 
+
+### IV) Filtering
+
+Filtering involves convolution operation. Following filters are discussed:
+
+#### Mean Filter (LPF)
+
+* normalized kernel with **same** filter co-efficients
+* API : `cv2.boxFilter`
+* E.g.:
+	- `imgNew = cv2.boxFilter(img,KERNEL_SIZE)`
+	- `KERNEL_SIZE = (5,5)`
+
+
+#### Gaussian Filter (LPF)
+
+* kernel with **gaussian** co-efficients
+* API : `cv2.GaussianBlur`
+* E.g.:
+	- `imgNew = cv2.GaussianBlur(img,KERNEL_SIZE,ST_DEV_X,ST_DEV_Y)`
+	- `KERNEL_SIZE` : tuple indicating kernel-size
+	- `ST_DEV_X` : standard deviation along x-axis
+	- `ST_DEV_Y` : standard deviation along y-axis. If unset, its equal to `ST_DEV_X`
+* Issues : 
+	- blurs the image
+	- value at (x,y) may not be from the image at all
+
+#### Median Filter (LPF)
+
+* arranges pixels in sorted manner and picks median value
+* API : `cv2.medianBlur`
+* E.g.:
+	- `imgNew = cv2.medianBlur( img, KERNEL_LINEAR_SIZE )`
+	- `KERNEL_LINEAR_SIZE` : +ve odd value
+
+#### Bilateral Filter (LPF)
+
+* performs de-noising, preserving edges
+* uses a combination of gaussian blur filter (*spatial-domain*), and gaussian multiplicative filter (*intensity-domain*)
+* API : `cv2.bilateralFilter`
+* E.g.:
+	- `imgNew = cv2.bilateralFilter( img, d, ST_DEV_COLOUR, ST_DEV_SPACE )`
+	- `d` : diameter of each pixel neighbourhood for filtering. if -ve, computed from ST_DEV
+	- `ST_DEV_COLOUR` : 
+	- `ST_DEV_SPACE` : 
 
 ---------
 
