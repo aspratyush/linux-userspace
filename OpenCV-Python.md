@@ -138,11 +138,11 @@ Following 3 scenarios occur:
 		- `imgNew = cv2.warpPerspective(img, M, (cols,rows))` 
 
 
-### IV) Filtering
+### IV) Filtering (LPF)
 
 Filtering involves convolution operation. Following filters are discussed:
 
-#### Mean Filter (LPF)
+#### Mean Filter
 
 * normalized kernel with **same** filter co-efficients
 * API : `cv2.boxFilter`
@@ -151,7 +151,7 @@ Filtering involves convolution operation. Following filters are discussed:
 	- `KERNEL_SIZE = (5,5)`
 
 
-#### Gaussian Filter (LPF)
+#### Gaussian Filter
 
 * kernel with **gaussian** co-efficients
 * API : `cv2.GaussianBlur`
@@ -164,7 +164,7 @@ Filtering involves convolution operation. Following filters are discussed:
 	- blurs the image
 	- value at (x,y) may not be from the image at all
 
-#### Median Filter (LPF)
+#### Median Filter
 
 * arranges pixels in sorted manner and picks median value
 * API : `cv2.medianBlur`
@@ -172,16 +172,57 @@ Filtering involves convolution operation. Following filters are discussed:
 	- `imgNew = cv2.medianBlur( img, KERNEL_LINEAR_SIZE )`
 	- `KERNEL_LINEAR_SIZE` : +ve odd value
 
-#### Bilateral Filter (LPF)
+#### Bilateral Filter
 
 * performs de-noising, preserving edges
 * uses a combination of gaussian blur filter (*spatial-domain*), and gaussian multiplicative filter (*intensity-domain*)
 * API : `cv2.bilateralFilter`
 * E.g.:
 	- `imgNew = cv2.bilateralFilter( img, d, ST_DEV_COLOUR, ST_DEV_SPACE )`
-	- `d` : diameter of each pixel neighbourhood for filtering. if -ve, computed from ST_DEV
-	- `ST_DEV_COLOUR` : 
-	- `ST_DEV_SPACE` : 
+	- `d` : diameter of each pixel neighbourhood for filtering. if -ve, computed from ST_DEV ( recommended : `5 to 10` )
+	- `ST_DEV_COLOUR` : Filter sigma in colour-domain ( recommended : `>10`, large values - cartoonish )
+	- `ST_DEV_SPACE` : Filter sigma in spatial-domain ( recommended : `>10`, large values - cartoonish )
+
+
+### V) Filtering (HPF)
+
+Convolution with a HPF results in edge extraction in images.
+
+#### Sobel / Scharr
+
+* HPF in x-/y- direction
+* `Sobel` is more resistant to noise than `Scharr`
+* API : `cv2.Sobel` or `cv2.Scharr`
+* E.g.:
+	- `imgNew = cv2.Sobel( img, d, yorder, xorder, KERNEL_SIZE )`
+	- `yorder = 1` : if vertical gradients needed
+	- `xorder = 1` : if horizontal gradients needed
+	- `KERNEL_SIZE` : kernel size. If set to 1, 3 x 3 filter chosen as default
+	- `d` : image depth ( int8 : `cv2.CV_8U`, int16 : `cv2.CV_16S`, float64 : `cv2.CV_64F` ) 
+
+* **Recommended** : use `d = cv2.CV_64F` and do `np.absolute` and `np.uint8`
+
+#### Laplacian
+
+* Uses Sobel HPF in both x- and y-directions
+* API : `cv2.Laplacian`
+* E.g.:
+	- `imgNew = cv2.Laplacian( img, d )`
+	- `d` : image depth ( int8 : `cv2.CV_8U`, int16 : `cv2.CV_16S`, float64 : `cv2.CV_64F` ) 
+
+
+#### Canny 
+
+* Uses a combination of - a) noise filtering, b) gradient extraction, c) NMS, d) Hysteresis Thresholding
+* API : `cv2.Canny`
+* E.g.:
+	- `imgNew = cv2.Canny( img, HYS_MIN, HYS_MAX, KERNEL_SIZE, USE_L2_GRADIENT )`
+	- `HYS_MIN` : min-value for Hysteresis
+	- `HYS_MAX` : max-value for Hysteresis
+	- `KERNEL_SIZE` : Sobel filter size to use. `default = 3`
+	- `USE_L2_GRADIENT` : L2-norm to calculate graident magnitude. `default : False (L1)`
+
+#### 
 
 ---------
 
@@ -189,3 +230,4 @@ Filtering involves convolution operation. Following filters are discussed:
 1. slideshow of images
 2. track R,G,B objects simultaneously
 3. sudoko image capture -> edge extract -> projection correction -> solve?
+4. Canny for an image with sliders to change Hysteresis values
