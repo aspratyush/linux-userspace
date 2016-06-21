@@ -225,7 +225,7 @@ Convolution with a HPF results in edge extraction in images.
 
 ### VI) Image Pyramids
 
-* Every octave **up**, size reduced by `2` in both directions
+* Every octave **up / down**, size changes by `2` in both directions. Area changes by a factor of `4`.
 * API : `cv2.pyrUp()`, `cv2.pyrDown()`
 * E.g.:
 	- Octave up :
@@ -236,6 +236,18 @@ Convolution with a HPF results in edge extraction in images.
 		- `Gaussian` : normal pyramid
 		- `Laplacian` : difference between current level and octave down of previous level
 
+
+### VII ) Image Contours
+
+* find and/or draw binary-image object boundaries
+* original image gets modified on using `cv2.findContours`. Keep a cache!
+* API : `cv2.findContours`, `cv2.drawContours`
+* E.g.:
+	- `imgNew, contours, hierarchy = cv2.findContours( img, RETRIEVAL_MODE, APPROX_MODE)`
+	- RETRIEVAL_MODE : `cv2.RETR_TREE`
+	- APPROX_MODE : 
+		- `cv2.CHAIN_APPROX_NONE` : find all points that form the contour
+		- `cv2.CHAIN_APPROX_SIMPLE` : find end-points of the contour for linear scenarios
 ---------
 
 ## Exercise
