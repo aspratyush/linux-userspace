@@ -222,7 +222,19 @@ Convolution with a HPF results in edge extraction in images.
 	- `KERNEL_SIZE` : Sobel filter size to use. `default = 3`
 	- `USE_L2_GRADIENT` : L2-norm to calculate graident magnitude. `default : False (L1)`
 
-#### 
+
+### VI) Image Pyramids
+
+* Every octave **up**, size reduced by `2` in both directions
+* API : `cv2.pyrUp()`, `cv2.pyrDown()`
+* E.g.:
+	- Octave up :
+		- `octave_up = cv2.pyrUp(img)`
+	- Octave down :
+		- `octave_down = cv2.pyrDown(img)`
+	- Two essential types :
+		- `Gaussian` : normal pyramid
+		- `Laplacian` : difference between current level and octave down of previous level
 
 ---------
 
@@ -231,3 +243,4 @@ Convolution with a HPF results in edge extraction in images.
 2. track R,G,B objects simultaneously
 3. sudoko image capture -> edge extract -> projection correction -> solve?
 4. Canny for an image with sliders to change Hysteresis values
+5. Image blending using pyramids
