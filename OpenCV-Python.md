@@ -248,6 +248,9 @@ Convolution with a HPF results in edge extraction in images.
 	- APPROX_MODE : 
 		- `cv2.CHAIN_APPROX_NONE` : find all points that form the contour
 		- `cv2.CHAIN_APPROX_SIMPLE` : find end-points of the contour for linear scenarios
+	- `imgNew = cv2.drawContours( imgNew, contours, -1 , (b,g,r), 3 )`
+
+
 ---------
 
 ## Exercise
