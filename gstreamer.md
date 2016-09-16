@@ -78,3 +78,19 @@ Plugin manybe running in one of the modes:
 
 #### PUSH MODE
 * tuned to process data when sink pad gets populated (e.g. - volume control)
+
+
+## Concepts
+
+### GstMiniObjects
+* Streams of data is broken into chunks, encapsulated in ```GstMiniObject``` structure.
+* ```GstMiniObject``` is passed across elements
+* Two types of contents:
+	- events (control) - event about the state of the stream flowing (media type / eos / cache flush)
+	- buffer (content) - chunk of data (audio / video) that flows b/w elements
+* buffers may contain metadata:
+	- pointers to ```GstMemory```
+	- timestamp
+* events sent __ONLY__ if element supports it (ch17)
+
+
