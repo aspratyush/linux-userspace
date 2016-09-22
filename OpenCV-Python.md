@@ -237,19 +237,123 @@ Convolution with a HPF results in edge extraction in images.
 		- `Laplacian` : difference between current level and octave down of previous level
 
 
-### VII ) Image Contours
+### VII ) Image Contours and its derivative properties
 
 * find and/or draw binary-image object boundaries
 * original image gets modified on using `cv2.findContours`. Keep a cache!
 * API : `cv2.findContours`, `cv2.drawContours`
 * E.g.:
-	- `imgNew, contours, hierarchy = cv2.findContours( img, RETRIEVAL_MODE, APPROX_MODE)`
+	- `contours, hierarchy = cv2.findContours( img, RETRIEVAL_MODE, APPROX_MODE)`
 	- RETRIEVAL_MODE : `cv2.RETR_TREE`
+	- _refer_ : https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_contours_hierarchy/py_contours_hierarchy.html
 	- APPROX_MODE : 
 		- `cv2.CHAIN_APPROX_NONE` : find all points that form the contour
 		- `cv2.CHAIN_APPROX_SIMPLE` : find end-points of the contour for linear scenarios
-	- `imgNew = cv2.drawContours( imgNew, contours, -1 , (b,g,r), 3 )`
+	- `imgNew = cv2.drawContours( imgNew, contours, -1 , (b,g,r), THICKNESS )`
 
+#### Moments
+
+* find the image moments
+* API : `cv2.moments`
+* E.g.:
+	- `contours, hierarchy = cv2.findContours( img, RETRIEVAL_MODE, APPROX_MODE)`
+	- `cnt = contours[0]`
+	- `M = cv2.moments(cnt)`
+
+#### Centroid
+
+* find centre of mass of the object
+* derived from M
+	- `cx = M['m10']/M['m00']`
+	- `cy = M['m01']/M['m00']`
+
+#### Area
+
+* find area enclosed by the object
+* API : `cv2.contourArea`
+* E.g.:
+	- `cnt = contours[0]`
+	- `area = cv2.contourArea(cnt)`
+	- Can also be calculated from Moments
+		- `M = cv2.moments(cnt)`
+		- `area = M['m00']`
+
+#### Perimeter
+
+* find the contour perimeter / arc-length
+* API : `cv2.arcLength`
+* E.g.:
+	- `cnt = contours[0]`
+	- `perimeter = cv2.arcLength(cnt, FLAG)`
+		- `FLAG = true` : if closed contour
+
+#### Convex Hull
+
+* find the convex hull of the enclosed object
+* API : `cv2.convexHull`
+* E.g.:
+	- `cnt = contours[0]`
+	- `hull = cv2.convexHull(cnt)`
+
+#### Contour Approximation
+
+* find an approximation to the calculated contour
+* API : `cv2.approxPolyDP`
+* E.g.:
+	- `cnt = contours[0]`
+	- `epsilon = N * cv2.arcLength(cnt, True)`
+	- `approxCnt = cv2.approxPolyDP(cnt, epsilon, True)`
+
+#### Bounding Rectangle and Aspect Ratio
+
+* allows straight / rotated bounding rectangles
+* __STRAIGHT__:
+	- API : `cv2.boundingRect`
+	- E.g.:
+		- `cnt = contours[0]`
+		- `x,y,w,h = cv2.boundingRect(cnt)`
+		- `img = cv2.reactangle(img, (x,y), (x+w, y+h), (b,g,r), THICKNESS)`
+* __ROTATED__:
+	* API : `cv2.minAreaRect`
+	* E.g.:
+		- `cnt = contours[0]`
+		- `rect = cv2.minAreaRect(cnt)`
+		- `box = np.int0( cv2.boxPoints(rect) )`
+		- `img = cv2.drawContours( img, [box], 0, (b,g,r), THICKNESS)`
+
+* enables calculating 'Aspect ratio', 'Extent', etc.
+* __ASPECT RATIO__:
+	- Ratio of width to height
+	- `x,y,w,h = cv2.boundingRect(cnt)`
+	- `aspect_ratio = float(w)/h`
+
+* __EXTENT__:
+	- ratio of actual area to bounding rectangle area
+	- `x,y,w,h = cv2.boundingRect(cnt)`
+	- `rect_area = w*h`
+	- `area = cv2.contourArea(cnt)`
+	- `extent = float(area)/rect_area`
+
+#### Minimum Enclosing Circle
+
+* enclose the object in a circle
+* API : `cv2.minEnclosingCircle`
+* E.g.:
+	- `cnt = contours[0]`
+	- `(x,y),radius = cv2.minEnclosingCircle(cnt)`
+	- `center = (int(x),int(y))`
+	- `img = cv2.circle(img, center, radius, (b,g,r), THICKNESS)`
+
+#### Match shapes
+
+* returns a number indicating shape matching.
+* `0` means no match, `1` means exact match.
+* API : `cv2.matchShapes`
+* E.g.:
+	- `match_score = cv2.matchShapes(cnt1, cnt2, 1, 0.0)`
+
+
+### IX) Histograms
 
 ---------
 
@@ -259,3 +363,4 @@ Convolution with a HPF results in edge extraction in images.
 3. sudoko image capture -> edge extract -> projection correction -> solve?
 4. Canny for an image with sliders to change Hysteresis values
 5. Image blending using pyramids
+6. Match letter/digit shapes.. think how it'll lead to OCR
