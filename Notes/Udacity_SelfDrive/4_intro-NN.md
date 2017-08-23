@@ -1,7 +1,7 @@
 Intro to NN
 =================
 
-###Machine Learning
+### Machine Learning
 - Linear Regression  
     - Metric : sq. distance of points from the line (instead of distance)
 
@@ -56,4 +56,12 @@ w_{11} & w_{12} \\
 w_{21} & w_{22} \\
 w_{31} & w_{32}
 \end{bmatrix}
+\]
+
+#### Backpropagation
+- Derivative of the error at output is scaled by weights between hidden units and the output, and so on.
+- The hidden unit contributing more to the output sees more Backpropagating error.
+\[
+\delta^{h}_{j} = \sum W_{j k} \delta_{k}^{0} f'(h_{j}) \\
+\Delta w_{i j} = \eta \delta_{k}^{0} x_{i}
 \]
