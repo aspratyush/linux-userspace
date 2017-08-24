@@ -169,3 +169,94 @@ b = b - \alpha \frac{db}{\sqrt {S_{db} + \epsilon}}
 #### Hyperparameter search
 - Random works better than grid search, since we will sample a much richer set
 - Use coarse-to-fine search process
+- Use log-scale for random search
+  - for e.g : ``` r = -4*np.random.rand(); alpha = 10^r```
+- $\beta$, the momentum friction, is very sensitive to small changes, esp around 1. So, prefer log-scale sampling, instead of uniform sampling.
+- **Panda approach** (Babysitting one model over days - if constrained by hardware) vs **Caviar approach** (parallel & several - needs several GPUs). Panda approach more common.
+
+#### Batch Normalization
+- normalizing the activations
+- makes params in deeper layers more robust to changes due to training of lower layers.
+- intuition : we normalize inputs to converge faster in GD. What if we normalize activations to train next layer faster.
+- Recommended to normalize $z$ (linear output) instead of $a$ (activations).
+\[
+\mu_{z} = \frac{1}{m} \Sigma_{i} z^{(i)} \\
+\sigma^{2} = \frac{1}{m} \Sigma_{i} (z^{(i)} - \mu_{z}) \\
+z^{(i)}_{\text{norm}} = \frac{z^{(i)} - \mu}{\sqrt{(\sigma^{2} + \epsilon)}} \\
+\hat{z}^{(i)} = \gamma z^{(i)}_{\text{norm}} + \beta \\
+\]
+- BIG ADVANTAGE : $\gamma$ and $\beta$ are learnable params.
+- Ensures hidden params have standardised mean and variance.
+- Replace ${z}^{(i)}$ by $\hat{z}^{(i)}$ while calculating $a^{(i)}$. If:
+\[
+\gamma = \sqrt{(\sigma^{2} + \epsilon)} \ \text{and } \ \beta = \mu \\
+\hat{z}^{(i)} = {z}^{(i)}
+\]
+- **Params** : $W^{[l]}, b^{[l]}, \beta^{[l]}, \gamma^{[l]}, \ b^{[l]}, \beta^{[l]}, \gamma^{[l]} \in \mathbb{R}^{n^{[l] \times 1}}$
+- Since any constant gets removed off during mean-normalization, no point having $b^{[l]}$.
+
+**Working with mini-batches**:
+- Look only within the current mini-batch
+\[
+X^{\{i\}} \xrightarrow[b^{[1]}]{W^{[1]}} z^{[1]} \xrightarrow[\gamma^{[1]}, BN]{\beta^{[1]}} \hat{z^{[1]}} \rightarrow g^{[1]}(\hat{z}^{[1]}) = a^{[1]} \xrightarrow[b^{[2]}]{W^{[2]}} z^{[2]} \dots
+\]
+- At test time, use a exponentially weighted running average of the values.
+
+#### Why batch normalization works***
+1. Learning on shifting I/P distribution
+  - Robust to covariance shifts in train and test distributions
+  - Especially important for numerical  stability of the deeper layers, as they get robust against the covariance shifts of the activations in the lower layers.
+
+
+### Softmax Layer
+- used for genralization of logistic regression over $c$-classes.
+- similar to a normal layer, has a linear output and an activation output
+\[
+t = \exp^{z^{[L]}} \\
+a^{[L]} = \frac{\exp^{z^{[L]}}}{\Sigma_{i} t_{i}}
+\]
+
+- $t$ is similar to confidence
+- $a^{[L]}$ is the normalized version -- probability
+- unlike logistic regression, softmax layer outputs a vector. If $c=2$, softmax reduces to logistic regression.
+- HARDMAX - one-hot encoding from $z$.
+- SOFTMAX - gentle mapping from $z$ to probability-like values.
+- **Loss** :
+\[
+\mathcal{L}(\hat{y} - y) = - \Sigma_{j} y_{j} \log{\hat{y}_{j}}
+\]
+- NOTE : $dz^{[L]} = \hat{y} - y$, for softmax loss.
+
+### TensorFlow
+- builds computational graph to solve the F/W propagation.
+- auto-calculates the B/W propagation values.
+- everything happens inside of a session.
+- sample code:
+
+```
+import numpy as np
+import tensorflow as tf
+
+# values to feed in at train time - could be replaced by I/P data
+coefficients = np.array([[1., 2., 3.]])
+
+w = tf.Variable([0], dtype=tf.float32)      # define a variable
+x = tf.placeholder(tf.float32, [3,1])       # run-time variable / I/P data
+
+# cost (F/W computational graph)
+cost = x[0][0]*w**2 + x[0][1]*w**1 + x[0][2]
+
+# GD
+train = tf.train.GradientDescentOptimizer(0.01).minimize(cost)  # optimizer, LR and fn. to minimize
+
+# idiomatic to do the following 5 lines
+init = tf.global_variables_initializer()    # tf initialization
+session = tf.Session()                      # prefer : with tf.Session() as session:
+session.run(init)
+print(session.run(w))
+
+# run the training
+for i in range(1000):
+    session.run(train, feed_dict={x:coefficients})
+print session.run(w)
+```
