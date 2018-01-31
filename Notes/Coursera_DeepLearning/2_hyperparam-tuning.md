@@ -67,7 +67,7 @@ a3 /= keep_prob
 
 #### Speeding up training
 - **Weight initialization** - avoids gradients exploding / decaying too quickly
-  - Relu : $W^{[l]} = \text{np.random.randn(shape)} * \text{np.sqrt}(\frac{2}{n^{[l-1]}})$
+  - Relu (**He initialization**): $W^{[l]} = \text{np.random.randn(shape)} * \text{np.sqrt}(\frac{2}{n^{[l-1]}})$
   - tanh : $\text{np.sqrt}(\frac{1}{n^{[l-1]}})$ : Xavier initialization
   - other : $\text{np.sqrt}(\frac{2}{n^{[l-1]} * n^{[l]}})$
 
@@ -240,7 +240,7 @@ import tensorflow as tf
 # values to feed in at train time - could be replaced by I/P data
 coefficients = np.array([[1., 2., 3.]])
 
-w = tf.Variable([0], dtype=tf.float32)      # define a variable
+w = tf.Variable([0], dtype=tf.float32)      # define a variable to be **MINIMIZED**
 x = tf.placeholder(tf.float32, [3,1])       # run-time variable / I/P data
 
 # cost (F/W computational graph)

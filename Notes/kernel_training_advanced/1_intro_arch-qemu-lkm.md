@@ -1,0 +1,11 @@
+## Linux Kernel Advanced
+- Contains 3 primary components:
+  - bootloader
+  - kernel
+  - rootfs
+- If no rootfs present, kernel will panic.
+- __kdump__:
+  - boot up normal system, it boots the secondary backup kernel, exception code hooks into the backup kernel.
+  - get snapshot of the running kernel when this happens, and analyze.
+- __crash__:
+  - gets a dump of the running kernel, thus allowing live analysis.
