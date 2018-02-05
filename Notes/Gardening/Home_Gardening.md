@@ -67,3 +67,32 @@
 
 ## Crotons
 - Easy to propagate with
+
+## Tomato
+#### Seeds
+  1. 15 days full seedling
+    - 1-1.5 inch with 2-3 leaves
+    - Epsom salt addition helps (Sendha Namak) - 1 tsp in 1 mug water and sprinkle on foliage and roots
+  2. 7 more days
+    - 4-5 leaves, 4 inch almost
+    - time to transplant
+  3. 2-3 feet long
+    - will need support
+    - DO NOT cut main branch, produces new branches
+    - leave 2-3 main branches only, cut all suckers for good size of fruit
+    - atleast 6 inches from ground, remove all suckers and leaves
+  4. Pollinate the blooms
+    - Shake the flowers on top of each other
+    - cut the stamens and swipe ear bud on it, and then rub onto another
+
+## Brinjal
+  1. Grow seedling until 2-3 inches
+  2. Every 10 days:
+    - Transplant and add compost (once)
+    - After total 30 days, cut lower branches and leaves
+    - May need neem oil spray
+  3. Give support using bamboo stick, etc. from 3 sides and tie the top.
+  4. Flowering around 50 days
+    - Hand pollinate the flowers
+  5. Fruits around 60 days onwards
+
