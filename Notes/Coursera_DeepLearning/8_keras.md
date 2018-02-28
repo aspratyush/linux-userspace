@@ -48,10 +48,15 @@ loss_history = [np.mean(loss) for loss in loss_history]
 
 ## 3. Useful utilities
 
-#### Convert to categorical
+#### Convert to one-hot form
 ```
 from keras.utils import np_utils
-y_train = np_utils.to_categorical(y_train, #classes)
+y_train_oh = np_utils.to_categorical(y_train, #classes)
+```
+
+#### Convert from one-hot to integer
+```
+y_train = np.argmax(y_train, axis=1)
 ```
 
 #### Convert datatype
@@ -127,9 +132,109 @@ plt.show()
 
 ## 6. CNNs
 - https://arxiv.org/abs/1603.07285 : A guide to convolution arithmetic for deep learning.
-- https://arxiv.org/abs/1609.03499 : WaveNet : A generative model for raw audio (causal padding in sec 2.1)
+- https://arxiv.org/abs/1609.03499 : **WaveNet** : A generative model for raw audio (causal padding in sec 2.1)
+- https://arxiv.org/abs/1409.1556 : (**VGG16**) Very Deep Convolutional Networks for Large-Scale Image Recognition
+- https://arxiv.org/abs/1512.03385 : (**ResNet**) Deep Residual Learning for Image Recognition
+- http://arxiv.org/abs/1512.00567 : (**Inception v3**) Rethinking the Inception Architecture for Computer Vision
+
 ### Maxpool
 - helps reduce params, reduce over-fitting
 - maxpool ensures that the spatial location of the feature is not important.
 - Excellent intuition example:
     - _Lets assume that we have a filter that is used for detecting faces. The exact pixel location of the face is less relevant then the fact that there is a face "somewhere at the top."_
+
+#### Shape order for reshaping the I/P
+```
+from keras import backend as K
+img_rows, img_cols = 28, 28
+
+if K.image_data_format() == 'channels_first':
+  shape_ord = (1, img_rows, img_cols)
+else:
+  shape_ord = (img_rows, img_cols, 1)
+```
+
+#### Reshaping the I/Ps
+```
+X_train = X_train.reshape((X_train.shape[0],) + shape_ord)
+```
+
+#### Metrics in the evaluated model
+```
+model.metrics_names
+>> ['loss', 'acc']
+loss, acc = model.evaluate(X_test, Y_test)
+```
+
+#### Plot integer labels in images
+```
+plt.text(0, 0, predicted[i], color='black',
+             bbox=dict(facecolor='white', alpha=1))
+```
+
+
+## VGG16 testing
+
+#### 1. Pre-process and predict
+```
+# 1a. Load modules <keras uses PIL internally>
+from keras.preprocessing import image
+from keras.applications import VGG16
+from keras.applications.imagenet_utils import preprocess_input, decode_predictions
+
+# 1b. VGG16 model load
+vgg16 = VGG16(include_top=True, weights='imagenet')
+vgg16.summary()
+
+# 2. load the image
+image_path = os.path.join(PATH, 'file,jpg')
+img = image.load_img(image_path, target_size=(224,224))
+
+# 3. convert to array and preprocess
+x = image.img_to_array(img)
+
+# 4. add dimension for the batch size
+x = np.expand_dims(x, axis=0)
+
+# 5. preprocess
+x = preprocess_input(x)
+
+$ 6. predict
+preds = vgg16.predict(x)
+print("Predictions : ", decode_predictions(preds))
+```
+
+## Extras
+#### ImageDataGenerator Example
+```
+from keras.preprocessing.image import ImageDataGenerator
+
+generated_images = ImageDataGenerator(
+    featurewise_center=True,  # set input mean to 0 over the dataset
+    samplewise_center=False,  # set each sample mean to 0
+    featurewise_std_normalization=True,  # divide inputs by std of the dataset
+    samplewise_std_normalization=False,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+    rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+    width_shift_range=0.2,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=0.2,  # randomly shift images vertically (fraction of total height)
+    horizontal_flip=True,  # randomly flip images
+    vertical_flip=False)  # randomly flip images
+
+generated_images.fit(X_train)
+
+gen = generated_images.flow(X_train, Y_train, batch_size=500, shuffle=True)
+X_batch, Y_batch = next(gen)
+
+from keras.utils import generic_utils
+
+n_epochs = 2
+for e in range(n_epochs):
+    print('Epoch', e)
+    print('Training...')
+    progbar = generic_utils.Progbar(X_train.shape[0])
+
+    for X_batch, Y_batch in generated_images.flow(X_train, Y_train, batch_size=500, shuffle=True):
+        loss = model.train_on_batch(X_batch, Y_batch)
+        progbar.add(X_batch.shape[0], values=[('train loss', loss[0])])
+```
