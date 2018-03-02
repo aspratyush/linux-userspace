@@ -175,7 +175,12 @@ plt.text(0, 0, predicted[i], color='black',
 
 ## VGG16 testing
 
-#### 1. Pre-process and predict
+#### 1. Loading models
+```
+from keras.application import <model_name>
+```
+
+#### 2. Pre-process and predict
 ```
 # 1a. Load modules <keras uses PIL internally>
 from keras.preprocessing import image
@@ -199,10 +204,170 @@ x = np.expand_dims(x, axis=0)
 # 5. preprocess
 x = preprocess_input(x)
 
-$ 6. predict
+# 6. predict
 preds = vgg16.predict(x)
 print("Predictions : ", decode_predictions(preds))
 ```
+
+
+### 3. Visualizing activations
+- Create look-up of layer names and layers
+```
+from collections import OrderedDict
+layer_dict = OrderedDict()
+# get the symbolic outputs of each "key" layer (we gave them unique names).
+for layer in vgg16.layers[1:]:
+    print(layer.name)
+    layer_dict[layer.name] = layer
+```
+OR a much more concise form:
+```
+layer_dict = dict([(layer.name, layer) for layer in model.layers ])
+```
+
+
+- Use `get_activations` (based on `K.function`)
+```
+# define the function
+def get_activations(model, layer, input_img):
+  activation_f = K.function([model.layers[0].input, K.learning_phase()],[layer.output])
+  activations = activation_f((input_img, False))
+  return activations
+
+# get the activations for the layer_name
+activations = get_activations(vgg19, lookup[layer_name], img)
+```
+
+- Activations obtained will be of the size $(1, H, W, F)$, where F is the filter size.
+- Build a square of $f = \sqrt{F}$-length and imshow the activations.
+```
+activated_img = activations[0]
+# add a figure
+fig = plt.figure(figsize=(20,20))
+for i in range(f):
+  for j in range(f):
+    idx = (i*f+j)
+    ax = fig.add_subplot(f,f,idx+1)
+    ax.imshow(activated_img[:,:,idx])
+
+```
+
+
+#### 4. Hyper-parameter grid search using scikit-learn
+- Excellent link : https://machinelearningmastery.com/grid-search-hyperparameters-deep-learning-models-python-keras/
+- Nice library : Hyperas http://maxpumperla.github.io/hyperas/
+
+##### Steps:
+- create Sequential model and give to KerasClassifier
+```
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
+
+# param1 could be epoch, param2 could be dropout_rate, or neither could be there
+def create_model(param1, param2):
+  ..
+  ..
+  return model
+
+model = KerasClassifier(build_fn=create_model, param1=10, param2=20)
+```
+
+- create a `dict` of the params
+```
+param_grid = dict(epochs=[10,20,30])
+grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
+grid_result = grid.fit(X, Y)
+```
+
+- best model is then present in the `grid_result`
+```
+# NOTE : grid_result.best_estimator_ is sklearn form.
+# NOTE : grid_result.best_estimator_.model is keras form.
+best_model = grid_result.best_estimator_.model
+metric_names = best_model.metrics_names
+metric_values = best_model.evaluate(X_test, y_test)
+for metric, value in zip(metric_names, metric_values):
+    print(metric, ': ', value)
+```
+
+
+#### 5. Transfer learning
+- Fix the bottom layers, and train the top few layers.
+- How many layers to train : depends on the data available.`
+```
+layers = dict([(layer.name, layer) for layer in model.layers])
+layers_to_finetune = ['dense_1', 'dense_2']
+for name,layer in layers:
+  if(name not in layers_to_finetune):
+    layer.trainable = False
+```
+
+- Example on VGG16:
+```
+# 1. create VGG model with no top layers
+from keras.applciations import VGG16
+vgg16 = VGG16(weights='imagenet', include_top='False')
+
+# 2. set layers as non-trainable
+for layer in vgg16.layers:
+  layer.trainable = False
+
+# 3. Add FC layers
+x = Flatten(input_shape=vgg16.output.shape)(vgg16.output)
+x = Dense(4096, activation='relu', name='ft_fc1')(x)
+x = Dropout(0.2)(x)
+x = BatchNormalization()(x)
+preds = Dense(nb_classes, activation='softmax')(x)
+
+# 4. Create a model with both these
+model = Model(inputs=vgg16.input, outputs=preds)
+model.compile(optimizer='adagrad', loss='categorical_crossentropy', metrics=['accuracy'])
+```
+
+
+#### 6. Generate batches
+```
+def generate_batches(X, Y, batch_size=128):
+  start = 0
+  yield (X[start:start+batch_size], Y[start:start+batch_size])
+  start = batch_size
+
+tboard_callback = TensorBoard(log_dir='logs/{}', histogram_freq=0,
+                             write_graph=True, write_images=True,
+                             embeddings_freq=10,
+                             embeddings_layer_names=['block1_conv2',
+                                                     'block5_conv1',
+                                                     'ft_fc1'],
+                             embeddings_metadata=None)
+batch_size=64
+steps_per_epoch = np.floor(X_train.shape[0]/batch_size)
+model.fit_generator(generate_batches(X_train, Y_train, 64),     
+                    steps_per_epoch=steps_per_epoch,
+                    epochs=20,
+                    verbose=1,
+                    callbacks=[tboard_callback])
+```
+
+
+
+### RNNs
+#### Creating a network with RNNs (SimpleRNN / LSTM / GRU)
+```
+model = Sequential()
+model.add(Embedding(vocab_size, dense_vec_size, input_length=max_len))
+model.add(SimpleRNN(128)) {or, LSTM(128), or, GRU(128)}
+model.add(Dropout(0.2))
+model.add(Dense(1))
+model.add(Activations('sigmoid'))
+
+model.compile(loss='binary_crossentropy', optimizer='adam')
+
+model.fit(X_train, y_train, epochs=4, batch_size=batch_size, validation_data=(X_val, y_val))
+score, acc = model.evaluate(X_test, y_test, batch_size=batch_size)
+print('Test score:', score)
+print('Test accuracy:', acc)
+```
+
 
 ## Extras
 #### ImageDataGenerator Example
