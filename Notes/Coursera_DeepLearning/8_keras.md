@@ -75,7 +75,27 @@ X_train, X_val, y_train, y_val = train_test_split(X_train, y_train)
 np.asarray(list)
 ```
 
+#### One-hot encoding
+```
+from sklearn.preprocessing import LabelBinarizer
+label_binarizer = LabelBinarizer()
+y_one_hot = label_binarizer.fit_transform(y_train)
+```
+OR
+```
+y_one_hot = tf.one_hot(y_train, #num_classes)
+```
 
+
+#### Validation split
+```
+model.fit(X_train_normalized, y_one_hot, epochs=__, validation_split=0.2)
+```
+OR
+```
+from sklearn.model_selection import train_test_split
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train)
+```
 ## 4. Inspecting layers
 #### Model summary
 ```
