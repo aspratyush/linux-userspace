@@ -6,7 +6,7 @@
 2. ModelCheckpoint
     - save the current model.
     - `best_model = ModelCheckpoint(name='test.h5', verbose=0, save_best_only=True)`
-    - This saves the _best_ model in filename `test.h5`.
+    - This saves the __best__ model in filename `test.h5`.
 
 ### Using the callbacks in training
 `model.fit(X_train, Y_train, validation_data=(X_val, Y_val), epochs=50, batch_size=128, verbose=True, callbacks=[best_model, early_stop])`
@@ -79,7 +79,8 @@ np.asarray(list)
 ```
 from sklearn.preprocessing import LabelBinarizer
 label_binarizer = LabelBinarizer()
-y_one_hot = label_binarizer.fit_transform(y_train)
+y_one_hot = label_binarizer.fit(y_train)
+y_one_hot = label_binarizer.transform(y_train)
 ```
 OR
 ```
