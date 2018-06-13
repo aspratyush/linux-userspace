@@ -1,3 +1,7 @@
+## Summaries
+Excellent reference:
+https://github.com/tensorflow/tensorflow/blob/r1.8/tensorflow/examples/tutorials/mnist/mnist_with_summaries.py
+
 ## Save and Restore models
 - `Saver` module saves `tf.Variables` and the `model`.
 
